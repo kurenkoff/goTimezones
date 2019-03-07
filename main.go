@@ -1,13 +1,14 @@
 package main
 
-
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alecthomas/jsonschema"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"timezones/models"
 	"timezones/schema"
 	"timezones/utils"
@@ -36,10 +37,21 @@ import (
 var TimeZones []string
 
 
+type Test struct {
+	Timezones map[string]string `json:"timezones"`
+}
+
+func schemagen(){
+	sch := jsonschema.Reflect(&Test{})
+	jsn, _ := json.Marshal(sch)
+	fmt.Println(string(jsn))
+}
+
 func main(){
+	schemagen()
 	r := mux.NewRouter()
 	r.HandleFunc("/time", GetTimeZone)
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":" + os.Getenv("PORT"), r))
 }
 
 
@@ -97,7 +109,7 @@ func GetTimeZone(w http.ResponseWriter, r *http.Request){
 		if err != nil {
 			fmt.Printf("GetTimeZone: Ошибка при попытке замаршалить ответ: %v\n", err)
 		}
-		validator.ValidateRequest(string(jsn))
+		validator.ValidateResponse(string(jsn))
 		fmt.Fprintf(w,"%s",string(jsn))
 	}
 }
