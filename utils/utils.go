@@ -34,3 +34,10 @@ func GetTime(zone string) string {
 	}
 	return "ErrorOccurred"
 }
+
+
+func FormResponse(w *http.ResponseWriter, status int, err error){
+	(*w).WriteHeader(status)
+	(*w).Header().Add("Content-Type","application/json")
+
+}

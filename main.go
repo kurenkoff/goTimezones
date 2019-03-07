@@ -3,15 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/alecthomas/jsonschema"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"timezones/models"
 	"timezones/schema"
-	"timezones/utils"
 )
 
 
@@ -37,21 +34,10 @@ import (
 var TimeZones []string
 
 
-type Test struct {
-	Timezones map[string]string `json:"timezones"`
-}
-
-func schemagen(){
-	sch := jsonschema.Reflect(&Test{})
-	jsn, _ := json.Marshal(sch)
-	fmt.Println(string(jsn))
-}
-
 func main(){
-	schemagen()
 	r := mux.NewRouter()
 	r.HandleFunc("/time", GetTimeZone)
-	log.Fatal(http.ListenAndServe(":" + os.Getenv("PORT"), r))
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
 
@@ -85,31 +71,40 @@ func GetTimeZone(w http.ResponseWriter, r *http.Request){
 		if err != nil {
 			fmt.Printf("GetTimeZone: Ошибка при попытке прочитать тело запроса: %v\n", err)
 		}
+
 		// Парсинг тела запроса
 		var request models.Request
 		err = json.Unmarshal(jsn, &request)
 		if err != nil {
 			fmt.Printf("GetTimeZone: Ошибка при попытке парсинга тела: %v\n", err)
 		}
+		// Проверка запроса по JsonSchema
 		validator := schema.NewValidator()
-		validator.ValidateRequest(string(jsn))
+		err = validator.ValidateRequest(string(jsn))
+		if err != nil {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			fmt.Fprintf(w, "%s",err.Error())
+		}
+
 		// Здесь должна быть  логика хранилища
 		// Конец логики хранилища
 
 		// Теперь будем запрашивать время для каждой из зон
 		// Или можно для всех сразу? (проверить на сайте, который предлагает API)
-		zones := make(map[string]string)
-		// возможно нужно воспользоваться горутинами?
-		for _, zone := range request.Timezones {
-			zones[zone] = utils.GetTime(zone)
-		}
 		var response models.Response
-		response.TimeInZones = zones
+
+		response.GetTime(request)
+
 		jsn, err = json.Marshal(response)
+
 		if err != nil {
 			fmt.Printf("GetTimeZone: Ошибка при попытке замаршалить ответ: %v\n", err)
 		}
-		validator.ValidateResponse(string(jsn))
+		err = validator.ValidateResponse(string(jsn))
+		if err != nil {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			fmt.Fprintf(w, "%s",err.Error())
+		}
 		fmt.Fprintf(w,"%s",string(jsn))
 	}
 }
