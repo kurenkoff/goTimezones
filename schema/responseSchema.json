@@ -1,19 +1,23 @@
 {
-  "$schema":"http://json-schema.org/draft-04/schema#",
-  "$ref":"#/definitions/Test",
-  "definitions":{
-    "Test": {
-      "required":["timezones"],
-      "properties":{
-        "timezones":{
-          "patternProperties":{
-            ".*":{"type":"string"}
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$ref": "#/definitions/Response",
+  "definitions": {
+    "Response": {
+      "required": [
+        "timezones"
+      ],
+      "properties": {
+        "timezones": {
+          "patternProperties": {
+            ".*": {
+              "type": "string"
+            }
           },
-          "type":"object"
+          "type": "object"
         }
       },
-      "additionalProperties":false,
-      "type":"object"
+      "additionalProperties": false,
+      "type": "object"
     }
   }
 }
