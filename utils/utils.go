@@ -12,27 +12,21 @@ type apiResponse struct {
 	Unixtime string `json:"unixtime"`
 }
 
-func GetTime(zone string) string {
+func GetTime(zone string) (string, error) {
 	URL := "http://worldtimeapi.org/api/timezone/" + zone
 	// Запрашиваем данные
-	r, err := http.Get(URL)
+	r, _ := http.Get(URL)
 	if r.StatusCode == http.StatusOK {
-		if err != nil {
-			fmt.Printf("getTime: Ошибка при попытке получить время в таймзоне: %v\n", err)
-		}
 		// Разбираем ответ
-		jsn, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("getTime: Ошибка при попытке прочитать тело запроса: %v\n", err)
-		}
+		jsn, _ := ioutil.ReadAll(r.Body)
 		var response apiResponse
-		err = json.Unmarshal(jsn, &response)
-		if err != nil {
-			fmt.Printf("getTime: Ошибка при попытке парсинга тела: %v\n", err)
+		err := json.Unmarshal(jsn, &response)
+		if err != nil{
+			return "", err
 		}
-		return response.Datetime
+		return response.Datetime, fmt.Errorf("")
 	}
-	return "ErrorOccurred"
+	return "", fmt.Errorf("bad status code")
 }
 
 

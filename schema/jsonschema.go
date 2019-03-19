@@ -24,7 +24,28 @@ func NewValidator() *Validator{
 	// загрузка из файла схемы ответа
 	buf, err = ioutil.ReadFile("schema/responseSchema.json")
 	if err != nil{
+		log.Fatal(fmt.Errorf("can't find responseSchema.json"))
+	}
+	response := string(buf)
+
+	return &Validator{
+		gojsonschema.NewStringLoader(request),
+		gojsonschema.NewStringLoader(response),
+	}
+}
+
+func NewCustomValidator(requestPath string, responsePath string) *Validator{
+	// загрузка из файла схемы запроса
+	buf, err := ioutil.ReadFile(requestPath)
+	if err != nil{
 		log.Fatal(fmt.Errorf("can't find requestSchema.json"))
+	}
+	request := string(buf)
+
+	// загрузка из файла схемы ответа
+	buf, err = ioutil.ReadFile(responsePath)
+	if err != nil{
+		log.Fatal(fmt.Errorf("can't find responseSchema.json"))
 	}
 	response := string(buf)
 

@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/alecthomas/jsonschema"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"timezones/db"
 	"timezones/models"
 	"timezones/schema"
 )
@@ -33,11 +35,23 @@ import (
 // Список всех допустимых временных зон
 var TimeZones []string
 
+func generate(){
+	sch := jsonschema.Reflect(&models.Request{})
+	jsn, _ := json.Marshal(sch)
+	fmt.Println(string(jsn))
+	sch = jsonschema.Reflect(&models.Response{})
+	jsn, _ = json.Marshal(sch)
+	fmt.Println(string(jsn))
+}
+
+
 
 func main(){
+	db.New()
+	fmt.Println("TUT-----------------------------------______----------------")
 	r := mux.NewRouter()
 	r.HandleFunc("/time", GetTimeZone)
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":8081", r))
 }
 
 
@@ -60,6 +74,8 @@ func init(){
 }
 
 
+// Плохая реакция на пустое тело запроса
+
 // Handler.
 // Body - models.Request
 // Response - models.Response
@@ -69,14 +85,15 @@ func GetTimeZone(w http.ResponseWriter, r *http.Request){
 		// Необходимо достать его
 		jsn, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			fmt.Printf("GetTimeZone: Ошибка при попытке прочитать тело запроса: %v\n", err)
+			log.Printf("GetTimeZone: Ошибка при попытке прочитать тело запроса: %v\n", err)
 		}
-
 		// Парсинг тела запроса
 		var request models.Request
 		err = json.Unmarshal(jsn, &request)
 		if err != nil {
-			fmt.Printf("GetTimeZone: Ошибка при попытке парсинга тела: %v\n", err)
+			log.Printf("GetTimeZone: Ошибка при попытке парсинга тела: %v\n", err)
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			return
 		}
 		// Проверка запроса по JsonSchema
 		validator := schema.NewValidator()
@@ -84,6 +101,7 @@ func GetTimeZone(w http.ResponseWriter, r *http.Request){
 		if err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			fmt.Fprintf(w, "%s",err.Error())
+			return
 		}
 
 		// Здесь должна быть  логика хранилища
@@ -98,13 +116,15 @@ func GetTimeZone(w http.ResponseWriter, r *http.Request){
 		jsn, err = json.Marshal(response)
 
 		if err != nil {
-			fmt.Printf("GetTimeZone: Ошибка при попытке замаршалить ответ: %v\n", err)
+			log.Printf("GetTimeZone: Ошибка при попытке замаршалить ответ: %v\n", err)
 		}
 		err = validator.ValidateResponse(string(jsn))
 		if err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			fmt.Fprintf(w, "%s",err.Error())
+			return
 		}
 		fmt.Fprintf(w,"%s",string(jsn))
+
 	}
 }

@@ -8,13 +8,22 @@ import (
 
 
 func TestGetTime(t *testing.T) {
-	data := []string{
-		"Europe/Moscow",
-		"America/Argentina/Salta",
+	testData := []struct{
+		location string
+		expected string
+	}{
+		{
+			"Europe/Moscow",
+			"",
+		},
+		{
+			"/dust",
+			"bad status code",
+		},
 	}
 
-	for i := 0; i < len(data); i++ {
-		time := GetTime(data[i])
-		assert.NotEqual(t,"",time,"Empty response")
+	for i := 0; i < len(testData); i++ {
+		_, err := GetTime(testData[i].location)
+		assert.Equal(t, testData[i].expected, err.Error(),"unexpected error")
 	}
 }
