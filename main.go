@@ -3,16 +3,15 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/alecthomas/jsonschema"
-	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"timezones/db"
 	"timezones/models"
 	"timezones/schema"
-)
 
+	"github.com/alecthomas/jsonschema"
+	"github.com/gorilla/mux"
+)
 
 /*
 Сервис реализует JSON API работающее по HTTP.
@@ -35,7 +34,7 @@ import (
 // Список всех допустимых временных зон
 var TimeZones []string
 
-func generate(){
+func generate() {
 	sch := jsonschema.Reflect(&models.Request{})
 	jsn, _ := json.Marshal(sch)
 	fmt.Println(string(jsn))
@@ -44,20 +43,15 @@ func generate(){
 	fmt.Println(string(jsn))
 }
 
-
-
-func main(){
-	db.New()
-	fmt.Println("TUT-----------------------------------______----------------")
+func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/time", GetTimeZone)
-	log.Fatal(http.ListenAndServe(":8081", r))
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
-
 
 // Инициализация(выполняется автоматически в самом начале работы программы).
 // Получение списка временных зон
-func init(){
+func init() {
 	// Очень некрасивый код. Поправить
 	r, err := http.Get("http://worldtimeapi.org/api/timezone")
 	if err != nil {
@@ -68,18 +62,17 @@ func init(){
 		fmt.Printf("%v\n", err)
 	}
 	err = json.Unmarshal(jsn, &TimeZones)
-	if err != nil{
+	if err != nil {
 		fmt.Printf("%v\n", err)
 	}
 }
-
 
 // Плохая реакция на пустое тело запроса
 
 // Handler.
 // Body - models.Request
 // Response - models.Response
-func GetTimeZone(w http.ResponseWriter, r *http.Request){
+func GetTimeZone(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		// т.к. в теле запроса массив находится массив таймзон
 		// Необходимо достать его
@@ -100,7 +93,7 @@ func GetTimeZone(w http.ResponseWriter, r *http.Request){
 		err = validator.ValidateRequest(string(jsn))
 		if err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			fmt.Fprintf(w, "%s",err.Error())
+			fmt.Fprintf(w, "%s", err.Error())
 			return
 		}
 
@@ -121,10 +114,10 @@ func GetTimeZone(w http.ResponseWriter, r *http.Request){
 		err = validator.ValidateResponse(string(jsn))
 		if err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			fmt.Fprintf(w, "%s",err.Error())
+			fmt.Fprintf(w, "%s", err.Error())
 			return
 		}
-		fmt.Fprintf(w,"%s",string(jsn))
+		fmt.Fprintf(w, "%s", string(jsn))
 
 	}
 }
