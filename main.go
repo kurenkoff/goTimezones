@@ -101,7 +101,7 @@ func GetTimeZone(w http.ResponseWriter, r *http.Request) {
 		// Или можно для всех сразу? (проверить на сайте, который предлагает API)
 		var response models.Response
 
-		response.GetTime(request)
+		response.GetTimeP(request)
 
 		jsn, err = json.Marshal(response)
 

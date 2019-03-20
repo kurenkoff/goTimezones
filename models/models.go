@@ -26,3 +26,18 @@ func (r *Response) GetTime(request Request){
 		r.TimeInZones[zone], _ = utils.GetTime(zone)
 	}
 }
+
+
+
+func (r *Response) GetTimeP(request Request){
+	r.TimeInZones = make(map[string]string)
+	time := make(chan utils.PTime)
+
+	for _, zone := range request.Timezones  {
+		go utils.GetTimeP(zone, time)
+	}
+	for i := 0; i < len(request.Timezones); i++{
+		rsp := <-time
+		r.TimeInZones[rsp.Zone] = rsp.Time
+	}
+}

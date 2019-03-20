@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -29,9 +30,26 @@ func GetTime(zone string) (string, error) {
 	return "", fmt.Errorf("bad status code")
 }
 
+type PTime struct {
+	Zone string
+	Time string
+}
 
-func FormResponse(w *http.ResponseWriter, status int, err error){
-	(*w).WriteHeader(status)
-	(*w).Header().Add("Content-Type","application/json")
-
+func GetTimeP(zone string, result chan PTime) {
+	URL := "http://worldtimeapi.org/api/timezone/" + zone
+	// Запрашиваем данные
+	r, _ := http.Get(URL)
+	if r.StatusCode == http.StatusOK {
+		// Разбираем ответ
+		jsn, _ := ioutil.ReadAll(r.Body)
+		var response apiResponse
+		err := json.Unmarshal(jsn, &response)
+		if err != nil{
+			log.Println(err)
+		}
+		result <- PTime{ zone, response.Datetime}
+		return
+	}
+	result <- PTime{ zone, ""}
+	return
 }
