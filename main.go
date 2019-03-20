@@ -6,10 +6,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"timezones/models"
 	"timezones/schema"
 
-	"github.com/alecthomas/jsonschema"
 	"github.com/gorilla/mux"
 )
 
@@ -30,23 +30,20 @@ import (
 
 */
 
-// Глобальная переменная (ОЧЕНЬ ПЛОХО наверное)
 // Список всех допустимых временных зон
 var TimeZones []string
 
-func generate() {
-	sch := jsonschema.Reflect(&models.Request{})
-	jsn, _ := json.Marshal(sch)
-	fmt.Println(string(jsn))
-	sch = jsonschema.Reflect(&models.Response{})
-	jsn, _ = json.Marshal(sch)
-	fmt.Println(string(jsn))
-}
 
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/time", GetTimeZone)
-	log.Fatal(http.ListenAndServe(":8080", r))
+	var port string
+	if os.Getenv("APP_PORT") == ""{
+		port = ":8080"
+	} else {
+		port = ":" + os.Getenv("APP_PORT")
+	}
+	log.Fatal(http.ListenAndServe(port, r))
 }
 
 // Инициализация(выполняется автоматически в самом начале работы программы).
