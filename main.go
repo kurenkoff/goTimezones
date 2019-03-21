@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"timezones/db"
 	"timezones/models"
 	"timezones/schema"
 
@@ -17,28 +18,27 @@ import (
 Сервис реализует JSON API работающее по HTTP.
 На вход принимает список зон, в ответе выдает список зон с текущим временем в них.
 
-   Заметки:
-	1. 2.03.19 Решено использовать API http://worldtimeapi.org/
-	2. 4.03.19 Для реализации JsonSchema выбрана библиотека github.com/xeipuuv/gojsonschema
-
 	TO-DO
-	1. Обработка ошибок (нормальная)
-	2. GET запрос
-	3. Main: mux/router -> стандартная библиотека
-	4. Разбиение на файлы
 	5. БД для хранения пользователей
 
 */
 
-// Список всех допустимых временных зон
-var TimeZones []string
 
+var (
+	TimeZones []string 		// Список всех допустимых временных зон
+	database  *db.Database	// Подключение к БД
+)
 
 func main() {
+	// Инициализция базы данных
+	database = db.New()
+	database.Initialize(TimeZones)
+	defer database.Close()
+	// Инициальзиция HTTP сервера
 	r := mux.NewRouter()
 	r.HandleFunc("/time", GetTimeZone)
 	var port string
-	if os.Getenv("APP_PORT") == ""{
+	if os.Getenv("APP_PORT") == "" {
 		port = ":8080"
 	} else {
 		port = ":" + os.Getenv("APP_PORT")
@@ -64,7 +64,6 @@ func init() {
 	}
 }
 
-// Плохая реакция на пустое тело запроса
 
 // Handler.
 // Body - models.Request
@@ -96,7 +95,8 @@ func GetTimeZone(w http.ResponseWriter, r *http.Request) {
 
 		// Здесь должна быть  логика хранилища
 		// Конец логики хранилища
-
+		database.UpdateUserData(request.ID, request.Timezones)
+		request.Timezones = database.GetTimezones(request.ID)
 		// Теперь будем запрашивать время для каждой из зон
 		// Или можно для всех сразу? (проверить на сайте, который предлагает API)
 		var response models.Response

@@ -22,7 +22,7 @@ func GetTime(zone string) (string, error) {
 		jsn, _ := ioutil.ReadAll(r.Body)
 		var response apiResponse
 		err := json.Unmarshal(jsn, &response)
-		if err != nil{
+		if err != nil {
 			return "", err
 		}
 		return response.Datetime, fmt.Errorf("")
@@ -44,12 +44,12 @@ func GetTimeP(zone string, result chan PTime) {
 		jsn, _ := ioutil.ReadAll(r.Body)
 		var response apiResponse
 		err := json.Unmarshal(jsn, &response)
-		if err != nil{
+		if err != nil {
 			log.Println(err)
 		}
-		result <- PTime{ zone, response.Datetime}
+		result <- PTime{zone, response.Datetime}
 		return
 	}
-	result <- PTime{ zone, ""}
+	result <- PTime{zone, ""}
 	return
 }

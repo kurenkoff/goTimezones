@@ -5,10 +5,8 @@ import (
 	"testing"
 )
 
-
-
 func TestGetTime(t *testing.T) {
-	testData := []struct{
+	testData := []struct {
 		location string
 		expected string
 	}{
@@ -24,6 +22,6 @@ func TestGetTime(t *testing.T) {
 
 	for i := 0; i < len(testData); i++ {
 		_, err := GetTime(testData[i].location)
-		assert.Equal(t, testData[i].expected, err.Error(),"unexpected error")
+		assert.Equal(t, testData[i].expected, err.Error(), "unexpected error")
 	}
 }

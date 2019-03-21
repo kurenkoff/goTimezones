@@ -12,7 +12,7 @@ import (
 
 func Router() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/time",GetTimeZone)
+	r.HandleFunc("/time", GetTimeZone)
 	return r
 }
 
@@ -22,14 +22,13 @@ func Router() *mux.Router {
 	2. BODY "" EXPECTED STATUS CODE 422
 */
 
-
 func TestGetTimeZone(t *testing.T) {
-	testData := []struct{
-		body string
+	testData := []struct {
+		body     string
 		expected int
 	}{
 		{
-			 `{
+			`{
 						"id": 1, 
 						"timezones": [
 							"America/Argentina/Salta",
@@ -45,8 +44,8 @@ func TestGetTimeZone(t *testing.T) {
 	}
 
 	for i := 0; i < len(testData); i++ {
-		request, err := http.NewRequest("GET","/time",bytes.NewBufferString(testData[i].body))
-		if err != nil{
+		request, err := http.NewRequest("GET", "/time", bytes.NewBufferString(testData[i].body))
+		if err != nil {
 			t.Errorf(err.Error())
 		}
 		recoder := httptest.NewRecorder()
@@ -54,5 +53,3 @@ func TestGetTimeZone(t *testing.T) {
 		assert.Equal(t, testData[i].expected, recoder.Code, fmt.Sprintf("Expected %d, got %d", testData[i].expected, recoder.Code))
 	}
 }
-
-

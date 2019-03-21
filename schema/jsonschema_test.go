@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-type TestData struct{
-	Data string
+type TestData struct {
+	Data     string
 	Expected string
 }
 
@@ -23,12 +23,10 @@ func TestValidator_ValidateRequest(t *testing.T) {
 		{
 			"{\"id\":1, \"timezones\": [\"Europe/Moscow\"] } ",
 			"",
-
 		},
 		{
 			"{}",
 			"ValidateRequest: request is not valid",
-
 		},
 		{
 			"\"id\": 200",
@@ -36,16 +34,14 @@ func TestValidator_ValidateRequest(t *testing.T) {
 		},
 	}
 
-	for i := 0; i < len(testData); i++  {
+	for i := 0; i < len(testData); i++ {
 		acctual := val.ValidateRequest(testData[i].Data)
-		if testData[i].Expected == ""{
+		if testData[i].Expected == "" {
 			assert.Nil(t, acctual, "Error isn't nil")
-		} else{
+		} else {
 			assert.EqualError(t, acctual, testData[i].Expected, "Error")
 		}
 	}
-
-
 
 }
 
@@ -56,19 +52,17 @@ func TestValidator_ValidateResponse(t *testing.T) {
 			"{\"timezones\":{\"America/Argentina/Salta\":\"\"," +
 				"\"Europe/Moscow\":\"2019-03-14T13:54:23.818762+03:00\"}}",
 			"",
-
 		},
 		{
 			"{}",
 			"ValidateResponse: response is not valid",
-
 		},
 	}
-	for i := 0; i < len(testData); i++  {
+	for i := 0; i < len(testData); i++ {
 		acctual := val.ValidateResponse(testData[i].Data)
-		if testData[i].Expected == ""{
+		if testData[i].Expected == "" {
 			assert.Nil(t, acctual, "Error isn't nil")
-		} else{
+		} else {
 			assert.EqualError(t, acctual, testData[i].Expected, "Error")
 		}
 	}

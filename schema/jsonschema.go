@@ -8,22 +8,21 @@ import (
 )
 
 type Validator struct {
-	requestSchemaLoader gojsonschema.JSONLoader
+	requestSchemaLoader  gojsonschema.JSONLoader
 	responseSchemaLoader gojsonschema.JSONLoader
-
 }
 
-func NewValidator() *Validator{
+func NewValidator() *Validator {
 	// загрузка из файла схемы запроса
 	buf, err := ioutil.ReadFile("schema/requestSchema.json")
-	if err != nil{
+	if err != nil {
 		log.Fatal(fmt.Errorf("can't find requestSchema.json"))
 	}
 	request := string(buf)
 
 	// загрузка из файла схемы ответа
 	buf, err = ioutil.ReadFile("schema/responseSchema.json")
-	if err != nil{
+	if err != nil {
 		log.Fatal(fmt.Errorf("can't find responseSchema.json"))
 	}
 	response := string(buf)
@@ -34,17 +33,17 @@ func NewValidator() *Validator{
 	}
 }
 
-func NewCustomValidator(requestPath string, responsePath string) *Validator{
+func NewCustomValidator(requestPath string, responsePath string) *Validator {
 	// загрузка из файла схемы запроса
 	buf, err := ioutil.ReadFile(requestPath)
-	if err != nil{
+	if err != nil {
 		log.Fatal(fmt.Errorf("can't find requestSchema.json"))
 	}
 	request := string(buf)
 
 	// загрузка из файла схемы ответа
 	buf, err = ioutil.ReadFile(responsePath)
-	if err != nil{
+	if err != nil {
 		log.Fatal(fmt.Errorf("can't find responseSchema.json"))
 	}
 	response := string(buf)
@@ -55,7 +54,7 @@ func NewCustomValidator(requestPath string, responsePath string) *Validator{
 	}
 }
 
-func (v Validator) ValidateRequest(request string) error{
+func (v Validator) ValidateRequest(request string) error {
 	requestLoader := gojsonschema.NewStringLoader(request)
 	result, err := gojsonschema.Validate(v.requestSchemaLoader, requestLoader)
 	if err != nil {
@@ -69,7 +68,7 @@ func (v Validator) ValidateRequest(request string) error{
 	return nil
 }
 
-func (v Validator) ValidateResponse(response string) error{
+func (v Validator) ValidateResponse(response string) error {
 	responseLoader := gojsonschema.NewStringLoader(response)
 	result, err := gojsonschema.Validate(v.responseSchemaLoader, responseLoader)
 	if err != nil {
