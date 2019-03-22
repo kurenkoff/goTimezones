@@ -17,24 +17,18 @@ import (
 /*
 Сервис реализует JSON API работающее по HTTP.
 На вход принимает список зон, в ответе выдает список зон с текущим временем в них.
-
-	TO-DO
-	5. БД для хранения пользователей
-
 */
 
-
 var (
-	TimeZones []string 		// Список всех допустимых временных зон
-	database  *db.Database	// Подключение к БД
+	TimeZones []string     // Список всех допустимых временных зон
+	database  *db.Database // Подключение к БД
 )
 
 func main() {
-	// Инициализция базы данных
-	database = db.New()
 	database.Initialize(TimeZones)
 	defer database.Close()
-	// Инициальзиция HTTP сервера
+
+
 	r := mux.NewRouter()
 	r.HandleFunc("/time", GetTimeZone)
 	var port string
@@ -46,10 +40,9 @@ func main() {
 	log.Fatal(http.ListenAndServe(port, r))
 }
 
-// Инициализация(выполняется автоматически в самом начале работы программы).
-// Получение списка временных зон
+// init Получение списка временных зон
 func init() {
-	// Очень некрасивый код. Поправить
+	database = db.New()
 	r, err := http.Get("http://worldtimeapi.org/api/timezone")
 	if err != nil {
 		fmt.Printf("%v\n", err)
@@ -63,7 +56,6 @@ func init() {
 		fmt.Printf("%v\n", err)
 	}
 }
-
 
 // Handler.
 // Body - models.Request

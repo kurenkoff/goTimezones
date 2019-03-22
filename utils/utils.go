@@ -13,6 +13,7 @@ type apiResponse struct {
 	Unixtime string `json:"unixtime"`
 }
 
+// GetTime Возвращает время в временной зоне zone и ошибку
 func GetTime(zone string) (string, error) {
 	URL := "http://worldtimeapi.org/api/timezone/" + zone
 	// Запрашиваем данные
@@ -30,11 +31,17 @@ func GetTime(zone string) (string, error) {
 	return "", fmt.Errorf("bad status code")
 }
 
+// реализация на горутинах
+
+// Ptime структура для канала
 type PTime struct {
+	// Временная зона
 	Zone string
+	// Время в Zone
 	Time string
 }
 
+// GetTimeP Записывает в канал result время в временной зоне zone
 func GetTimeP(zone string, result chan PTime) {
 	URL := "http://worldtimeapi.org/api/timezone/" + zone
 	// Запрашиваем данные
