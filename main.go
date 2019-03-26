@@ -57,9 +57,7 @@ func init() {
 	}
 }
 
-// Handler.
-// Body - models.Request
-// Response - models.Response
+// GetTimeZone Возвращает response время в временных зонах указаных в теле запроса
 func GetTimeZone(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		// т.к. в теле запроса массив находится массив таймзон

@@ -7,11 +7,15 @@ import (
 	"log"
 )
 
+// Validator структура, необходимая для валидации запроса и ответа
 type Validator struct {
+	// JsonSchema запроса
 	requestSchemaLoader  gojsonschema.JSONLoader
+	// JsonSchema ответа
 	responseSchemaLoader gojsonschema.JSONLoader
 }
 
+// NewValidator возвращает новый валидатор
 func NewValidator() *Validator {
 	// загрузка из файла схемы запроса
 	buf, err := ioutil.ReadFile("schema/requestSchema.json")
@@ -33,6 +37,8 @@ func NewValidator() *Validator {
 	}
 }
 
+// NewCustomValidator возвращает новый валидатор.
+// NewCustomValidator Читает Json схемы из файлов расположенных по путям requestPath и responsePath
 func NewCustomValidator(requestPath string, responsePath string) *Validator {
 	// загрузка из файла схемы запроса
 	buf, err := ioutil.ReadFile(requestPath)
@@ -54,6 +60,7 @@ func NewCustomValidator(requestPath string, responsePath string) *Validator {
 	}
 }
 
+// ValidateRequest производит валидацию запроса по схеме записанной в поле v.responseSchemaLoader
 func (v Validator) ValidateRequest(request string) error {
 	requestLoader := gojsonschema.NewStringLoader(request)
 	result, err := gojsonschema.Validate(v.requestSchemaLoader, requestLoader)
@@ -68,6 +75,7 @@ func (v Validator) ValidateRequest(request string) error {
 	return nil
 }
 
+// ValidateResponse производит валидацию ответа по схеме записанной в поле v.responseSchemaLoader
 func (v Validator) ValidateResponse(response string) error {
 	responseLoader := gojsonschema.NewStringLoader(response)
 	result, err := gojsonschema.Validate(v.responseSchemaLoader, responseLoader)
